@@ -1,9 +1,11 @@
 package androidutils
 
 import (
+	"errors"
 	"os/exec"
 	"regexp"
 	"strings"
+	"sync"
 )
 
 func runShell(args ...string) (out string, err error) {
@@ -26,4 +28,24 @@ func Properties() (props map[string]string, err error) {
 		props[key] = val
 	}
 	return
+}
+
+var (
+	propOnce   sync.Once
+	properties map[string]string
+
+	ErrGetprop = errors.New("error call getprop")
+)
+
+// Return property by name
+// if something went wrong, panic ErrGetprop
+func GetProperty(name string) string {
+	propOnce.Do(func() {
+		var err error
+		properties, err = Properties()
+		if err != nil {
+			panic(ErrGetprop)
+		}
+	})
+	return properties[name]
 }
