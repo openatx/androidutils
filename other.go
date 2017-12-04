@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -34,4 +35,40 @@ func getHWAddrWLAN() (string, error) {
 		return "", errors.New("no mac address founded")
 	}
 	return matches[1], nil
+}
+
+type Display struct {
+	Width  int `json:"width"`
+	Height int `json:"height"`
+}
+
+// WindowSize parse command "wm size" output
+// command output example:
+//   Physical size: 1440x2560
+//   Override size: 1080x1920
+func WindowSize() (display Display, err error) {
+	output, err := runShell("wm", "size")
+	if err != nil {
+		return
+	}
+	w, h, err := parseWmSize(output)
+	return Display{w, h}, err
+}
+
+var wmSizePattern = regexp.MustCompile(`(\w+)\s+size:\s+(\d+)x(\d+)`)
+
+func parseWmSize(output string) (width, height int, err error) {
+	ms := wmSizePattern.FindAllStringSubmatch(output, -1)
+	if len(ms) == 0 {
+		err = errors.New("wm size return unrecognize output: " + output)
+		return
+	}
+	if len(ms) == 2 {
+		width, _ = strconv.Atoi(ms[1][2])
+		height, _ = strconv.Atoi(ms[1][3])
+		return width, height, nil
+	}
+	width, _ = strconv.Atoi(ms[0][2])
+	height, _ = strconv.Atoi(ms[0][3])
+	return
 }
