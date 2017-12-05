@@ -2,6 +2,7 @@ package androidutils
 
 import (
 	"errors"
+	"log"
 	"os/exec"
 	"regexp"
 	"strings"
@@ -38,13 +39,13 @@ var (
 )
 
 // Return property by name
-// if something went wrong, panic ErrGetprop
+// if something went wrong, return ""
 func GetProperty(name string) string {
 	propOnce.Do(func() {
 		var err error
 		properties, err = Properties()
 		if err != nil {
-			panic(ErrGetprop)
+			log.Println("getgrop", err)
 		}
 	})
 	return properties[name]
