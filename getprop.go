@@ -5,12 +5,22 @@ import (
 	"log"
 	"os/exec"
 	"regexp"
-	"strings"
 	"sync"
+	"time"
+
+	shellquote "github.com/kballard/go-shellquote"
 )
 
+const defaultShellTimeout = 10 * time.Second
+
+// run shell with default timeout
 func runShell(args ...string) (out string, err error) {
-	output, err := exec.Command("sh", "-c", strings.Join(args, " ")).CombinedOutput()
+	cmd := exec.Command("sh", "-c", shellquote.Join(args...))
+	timer := time.AfterFunc(defaultShellTimeout, func() {
+		cmd.Process.Kill()
+	})
+	defer timer.Stop()
+	output, err := cmd.CombinedOutput()
 	return string(output), err
 }
 
