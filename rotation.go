@@ -10,11 +10,11 @@ import (
 
 // Rotation return degree of screen orientation. 0, 90, 180, 270
 func Rotation() (rotation int, err error) {
-	rotation, err = getRotationDumpsysInput("")
+	rotation, err = getRotationMinicap("")
 	if err == nil {
 		return
 	}
-	rotation, err = getRotationMinicap("")
+	rotation, err = getRotationDumpsysInput("")
 	return
 }
 
@@ -41,6 +41,7 @@ func getRotationMinicap(output string) (rotation int, err error) {
 	return f.Rotation, nil
 }
 
+// Note: On Xiaomi 5. There are two line contains "SurfaceOrientation: ", the first is wrong
 func getRotationDumpsysInput(output string) (rotation int, err error) {
 	if output == "" {
 		output, err = runShell("dumpsys", "input")
