@@ -13,6 +13,11 @@ func HWAddrWLAN() (string, error) {
 	return strings.ToLower(macaddr), err
 }
 
+func HWAddrETH() (string, error) {
+    macaddr, err := getHWAddrETH()
+    return strings.ToLower(macaddr), err
+}
+
 // WLAN Hardware Address, also known as wlan0 mac address
 // Thanks to this article https://android.stackexchange.com/questions/142606/how-can-i-find-my-mac-address/142630#142630
 func getHWAddrWLAN() (string, error) {
@@ -35,6 +40,25 @@ func getHWAddrWLAN() (string, error) {
 		return "", errors.New("no mac address founded")
 	}
 	return matches[1], nil
+}
+
+// ETH Hardware Address, also known as eth0 mac address
+func getHWAddrETH() (string, error) {
+    // method 1
+    data, err := ioutil.ReadFile("/sys/class/net/eth0/address")
+    if err == nil {
+        return strings.TrimSpace(string(data)), nil
+    }
+    // method 2
+    output, err := runShell("ip", "address", "show", "eth0")
+    if err != nil {
+        return "", err
+    }
+    matches := regexp.MustCompile(`link/ether ([\w\d:]{17})`).FindStringSubmatch(output)
+    if matches == nil {
+        return "", errors.New("no mac address founded")
+    }
+    return matches[1], nil
 }
 
 type Display struct {
