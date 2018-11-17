@@ -58,7 +58,11 @@ func CachedProperty(name string) string {
 			log.Println("getgrop", err)
 		}
 	})
-	return properties[name]
+	value := properties[name]
+	if value == "" {
+		value = Property(name)
+	}
+	return value
 }
 
 // Return property by name
