@@ -90,6 +90,8 @@ func (self *Battery) Update() error {
 			self.WirelessPowered = parseBool(val)
 		case "status":
 			self.Status = parseInt(val)
+		case "health":
+			self.Health = parseInt(val)
 		case "present":
 			self.Present = parseBool(val)
 		case "level":
